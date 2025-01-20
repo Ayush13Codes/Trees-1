@@ -4,17 +4,27 @@
 #         self.val = val
 #         self.left = left
 #         self.right = right
+
 class Solution:
     def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
-        # Base Case
-        if not preorder or not inorder:
-            return None
+        # Hashmap to store indices of inorder values for quick lookup
+        inIdxMap = {v: i for i, v in enumerate(inorder)}
+        self.preIdx = 0  # Pointer to the current root in preorder
 
-        root = TreeNode(preorder[0])
-        m = inorder.index(preorder[0])
-        # Recursive Case
-        root.left = self.buildTree(preorder[1 : m + 1], inorder[:m])
-        root.right = self.buildTree(preorder[m + 1 :], inorder[m + 1 :])
-        return root
+        def arrayToTree(l, r):
+            # Base case: if the current subtree is empty
+            if l > r:
+                return None
+            # Get the root value from preorder
+            rootVal = preorder[self.preIdx]
+            self.preIdx += 1
+            # Create the root node
+            root = TreeNode(rootVal)
+            # Recursively build the left and right subtrees
+            root.left = arrayToTree(l, inIdxMap[rootVal] - 1)
+            root.right = arrayToTree(inIdxMap[rootVal] + 1, r)
 
-    # T: O(n ** 2), S: O(O ** 2)
+            return root
+
+        return arrayToTree(0, len(inorder) - 1)
+        # T: O(n), S: O(n)
